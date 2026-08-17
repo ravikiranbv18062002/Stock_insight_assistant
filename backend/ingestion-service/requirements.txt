@@ -1,0 +1,9 @@
+yfinance
+psycopg2-binary
+sqlalchemy
+python-dotenv
+requests
+langchain-huggingface
+langchain-text-splitters
+sentence-transformers
+pgvector
