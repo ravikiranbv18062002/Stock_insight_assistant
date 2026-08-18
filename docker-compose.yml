@@ -12,5 +12,31 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  retrieval-service:
+    build: ./backend/retrieval-service
+    container_name: retrieval-service
+    restart: unless-stopped
+    env_file: ./backend/retrieval-service/.env
+    environment:
+      POSTGRES_HOST: postgres
+    ports:
+      - "8010:8010"
+    depends_on:
+      - postgres
+
+  chat-service:
+    build: ./backend/chat-service
+    container_name: chat-service
+    restart: unless-stopped
+    env_file: ./backend/chat-service/.env
+    environment:
+      POSTGRES_HOST: postgres
+      RETRIEVAL_SERVICE_URL: http://retrieval-service:8010
+    ports:
+      - "8020:8020"
+    depends_on:
+      - postgres
+      - retrieval-service
+
 volumes:
   pgdata:

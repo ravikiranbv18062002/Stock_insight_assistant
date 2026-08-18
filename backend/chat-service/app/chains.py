@@ -165,17 +165,18 @@ def answer_question(question: str, history: list = None) -> str:
 # Standalone test — simulates a short multi-turn conversation
 # ---------------------------------------------------------------------
 if __name__ == "__main__":
-    history = []
+    print(answer_question("What's going on with Tesla recently?"))
+    # history = []
 
-    q1 = "What's going on with Tesla recently?"
-    a1 = answer_question(q1, history)
-    print("Q1:", q1)
-    print("A1:", a1)
+    # q1 = "What's going on with Tesla recently?"
+    # a1 = answer_question(q1, history)
+    # print("Q1:", q1)
+    # print("A1:", a1)
 
-    history.append(HumanMessage(content=q1))
-    history.append(AIMessage(content=a1))
+    # history.append(HumanMessage(content=q1))
+    # history.append(AIMessage(content=a1))
 
-    q2 = "What about their stock price?"
-    a2 = answer_question(q2, history)
-    print("\nQ2:", q2)
-    print("A2:", a2)
+    # q2 = "What about their stock price?"
+    # a2 = answer_question(q2, history)
+    # print("\nQ2:", q2)
+    # print("A2:", a2)
