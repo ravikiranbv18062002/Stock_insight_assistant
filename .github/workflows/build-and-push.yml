@@ -1,0 +1,41 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: eu-north-1
+  ECR_REGISTRY: 015507567103.dkr.ecr.eu-north-1.amazonaws.com
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [chat-service, retrieval-service, ingestion-service]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        working-directory: backend/${{ matrix.service }}
+        run: |
+          docker build -t ${{ env.ECR_REGISTRY }}/stock-insight/${{ matrix.service }}:${{ github.sha }} .
+          docker build -t ${{ env.ECR_REGISTRY }}/stock-insight/${{ matrix.service }}:latest .
+          docker push ${{ env.ECR_REGISTRY }}/stock-insight/${{ matrix.service }}:${{ github.sha }}
+          docker push ${{ env.ECR_REGISTRY }}/stock-insight/${{ matrix.service }}:latest
