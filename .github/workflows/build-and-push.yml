@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: eu-north-1
-  ECR_REGISTRY: 015507567103.dkr.ecr.eu-north-1.amazonaws.com
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: 015507567103.dkr.ecr.ap-south-1.amazonaws.com
 
 jobs:
   build-and-push:
