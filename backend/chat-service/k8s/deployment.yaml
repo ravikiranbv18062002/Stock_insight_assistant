@@ -1,0 +1,52 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+        - name: chat-service
+          image: 015507567103.dkr.ecr.ap-south-1.amazonaws.com/stock-insight/chat-service:latest
+          ports:
+            - containerPort: 8020
+          envFrom:
+            - secretRef:
+                name: db-credentials
+            - secretRef:
+                name: chat-secrets
+          env:
+            - name: RETRIEVAL_SERVICE_URL
+              value: "http://retrieval-service:8010"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8020
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8020
+            initialDelaySeconds: 20
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-service
+spec:
+  selector:
+    app: chat-service
+  ports:
+    - port: 80
+      targetPort: 8020
+  type: NodePort

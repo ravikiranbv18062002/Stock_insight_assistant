@@ -1,0 +1,44 @@
+# This is a TEMPLATE, not a final config. The official nginx image auto-runs
+# envsubst on every file in /etc/nginx/templates/*.template at container
+# startup, substituting environment variables and writing the result to
+# /etc/nginx/conf.d/. That's how BACKEND_URL below becomes a runtime setting
+# instead of something baked in at build time — the same image can point at
+# a different backend instance just by changing the env var on `docker run`
+# or in the Kubernetes Deployment, no rebuild needed.
+#
+# Only ${BACKEND_URL} gets substituted (see Dockerfile's NGINX_ENVSUBST_FILTER).
+# Nginx's own runtime variables below ($host, $remote_addr, etc.) are left
+# untouched since they don't match that filter.
+
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Reverse-proxy API calls to the backend so the browser only ever talks
+    # to this one origin — no CORS involved, and chat-service's code/config
+    # doesn't need to know or care that a frontend exists.
+    location /api/ {
+        proxy_pass ${BACKEND_URL}/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+
+    # Client-side routing (react-router) — always fall back to index.html
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+}
